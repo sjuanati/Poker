@@ -85,9 +85,8 @@ function comprovaValor(carta) {
     Poker: 4 cartes iguals, 1 carta diferent
     Full: 3 cartes mateix valor + 2 cartes mateix valor
 */
-function comprovaParella(jugador, ma) {
-
-    //let parella = false;
+function comprovaCombinacions(jugador, ma) {
+/*
     let comptador = 0;
     let j=0;
 
@@ -95,44 +94,92 @@ function comprovaParella(jugador, ma) {
         j=i+1;
         while (j < ma.length) {
             if (ma[i].valor === ma[j].valor) {
-                //parella = true;
                 comptador++;
-            }/*
-            if ((comptador === 3) && (i<=1)) {
-                console.log(jugador, "Poker: ", true);
-                return;
-            }*/
+            }
             j++;
         }
     }
-
-    if (parella && (comptador === 1)) {
+    if (comptador === 1) {
         console.log(jugador, "Parella: ", true);
-    } else if (parella && (comptador === 2)) {
+    } else if (comptador === 2) {
         console.log(jugador, "Doble Parella: ", true);
-    } else if (parella && (comptador === 3)) {
+    } else if (comptador === 3) {
         console.log(jugador, "Full: ", true);
     } else if (comptador === 4) {
-        console.log(jugador, "Full: ", true);
+        console.log(jugador, "Poker: ", true);
     }
+*/
+
+/*
+    var resultat = {};
+    valors.forEach(function(element) {
+        resultat[element] = (resultat[element] || 0) + 1;
+    });
+
+    console.log("Resultat:",resultat)
+    for (var element in resultat) {
+        console.log(element + ' = ' + resultat[element]);
+    } */
+
+
+    let valors = [];
+    for (let i=0; i<ma.length; i++) {
+        valors.push(ma[i].valor);
+    }
+
+    // Genera array amb cada valor i el seu número de repeticions
+    let resultat = {};
+    valors.forEach(function(x) { resultat[x] = (resultat[x] || 0) + 1; });
+    //console.log(resultat);
+
+    // Count del número les propietats
+    let total = Object.keys(resultat).length;
+
+    // EMPAT O NO EMPAT? preguntar-ho.
+    for(key in resultat) {
+        if(resultat.hasOwnProperty(key)) {
+            repeticions = resultat[key];
+            if ((total === 2) && ((repeticions === 3) || (repeticions === 2))) {
+                console.log(jugador,"-> Full");
+                return;
+            } else if ((total === 2) && ((repeticions === 4) || (repeticions === 1))) {
+                console.log(jugador,"-> Poker");
+                return;
+            } else if ((total === 3) && (repeticions === 3)) {
+                console.log(jugador,"-> Trio");
+                return;
+            } else if ((total === 3) && (repeticions === 2)) {
+                console.log(jugador,"-> Doble Parella");
+                return;
+            } else if (total === 4) {
+                console.log(jugador,"-> Parella");
+                return;
+            } else if (total === 5) {
+                console.log(jugador,"-> Res de res");
+                return;
+            }
+        }
+    }
+
+
+
+
+  
+
+
+
 }
 
 // 3 cartes mateix valor, 2 cartes diferents
 function comprovaTrio() {
-
 }
-
 // 5 cartes consecutives mateix valor
 function comprovaEscala() {
-
 }
-
 // 5 cartes mateix pal
 function comprovaColor() {
 
 }
-
-
 // 5 cartes consecutives mateix pal
 function comprovaEscalaColor() {
 
@@ -140,7 +187,7 @@ function comprovaEscalaColor() {
 
 function comprovaMans() {
     for (let i=0; i<jugadorsMa.length; i++) {
-        comprovaParella(jugadorsMa[i].jugador, jugadorsMa[i].ma);
+        comprovaCombinacions(jugadorsMa[i].jugador, jugadorsMa[i].ma);
     }
 }
 
