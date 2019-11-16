@@ -1,14 +1,16 @@
 
+const numJugadors = 4;
+
+
 const pal = ['piques', 'cors', 'trevols', 'diamants'];
 const valor = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
-const numJugadors = 4;
-/*
-const pal = ['piques', 'cors', 'trevols', 'diamants'];
-const valor = ['Q','K','A'];
 
-const pal = ['piques'];
-const valor = ['Q','K','A','J','9','8'];
-*/
+//const pal = ['piques', 'cors', 'trevols', 'diamants'];
+//const valor = ['Q','K','A'];
+
+//const pal = ['piques'];
+//const valor = ['Q','K','A','J','9','8'];
+
 
 
 let baralla = [];
@@ -74,18 +76,18 @@ function reparteixBaralla(numJugadors) {
 // Assigna valor a cada carta
 function comprovaValor(carta) {
     switch (carta) {
-        case '2':   return 1;
-        case '3':   return 2;
-        case '4':   return 3;
-        case '5':   return 4;
-        case '6':   return 5;
-        case '7':   return 6;
-        case '8':   return 7;
-        case '9':   return 8;
-        case 'J':   return 9;
-        case 'Q':   return 10;
-        case 'K':   return 11;
-        case 'A':   return 12;
+        case '2':   return 2;
+        case '3':   return 3;
+        case '4':   return 4;
+        case '5':   return 5;
+        case '6':   return 6;
+        case '7':   return 7;
+        case '8':   return 8;
+        case '9':   return 9;
+        case 'J':   return 10;
+        case 'Q':   return 11;
+        case 'K':   return 12;
+        case 'A':   return 13;
         default:    return 0;
     }
 }
@@ -101,15 +103,15 @@ function comprovaValor(carta) {
     Parella: 2 cartes mateix valor, 3 cartes valors diferents -> 100 punts
 */
 
-// NO CAL PASSAR PER PARÀMETRE jugador i mà, DONCS ESTÀ EN ARRAY PÚBLIC jugadors
-function comprovaCombinacions(jugador, ma) {
+function comprovaCombinacions(pos) {
+    //jugadors[i].nom, jugadors[i].ma
 
     // Passa propietats de valors i pals a arrays
     let valors = [], pals = [], valorsEscala = [];
-    for (let i=0; i<ma.length; i++) {
-        valors.push(ma[i].valor);
-        pals.push(ma[i].pal);
-        valorsEscala.push(comprovaValor(ma[i].valor));
+    for (let i=0; i<jugadors[pos].ma.length; i++) {
+        valors.push(jugadors[pos].ma[i].valor);
+        pals.push(jugadors[pos].ma[i].pal);
+        valorsEscala.push(comprovaValor(jugadors[pos].ma[i].valor));
     }
 
     // Calcula número de repeticions per cada valor / pal
@@ -118,8 +120,8 @@ function comprovaCombinacions(jugador, ma) {
     valors.forEach(function(x) { resultatValors[x] = (resultatValors[x] || 0) + 1; });
     pals.forEach(function(x) { resultatPals[x] = (resultatPals[x] || 0) + 1; });
     
-    console.log("valors:",valors)
-    console.log("resultats:",resultatValors)
+    console.log("resultatValors:",resultatValors)
+    console.log("resultatPals:",resultatPals)
 
     // Count del número les propietats
     let totalValors = Object.keys(resultatValors).length;
@@ -128,41 +130,39 @@ function comprovaCombinacions(jugador, ma) {
     // Comprova: Parella, Doble Parella, Trio, Full, Poker
     let repeticions = 0;
     for(key in resultatValors) {
-        if(resultatValors.hasOwnProperty(key)) {
-            repeticions = resultatValors[key];
-            // Full
-            if ((totalValors === 2) && ((repeticions === 3) || (repeticions === 2))) {
-                jugadors[jugador-1].score = 600;
-                jugadors[jugador-1].combi = "Full";
-                return;
-            // Poker
-            } else if ((totalValors === 2) && ((repeticions === 4) || (repeticions === 1))) {
-                jugadors[jugador-1].score = 700;
-                jugadors[jugador-1].combi = "Pòquer";
-                return;
-            // Trio
-            } else if ((totalValors === 3) && (repeticions === 3)) {
-                jugadors[jugador-1].score = 300;
-                jugadors[jugador-1].combi = "Trio";
-                return;
-            // Doble parella
-            } else if ((totalValors === 3) && (repeticions === 2)) {
-                jugadors[jugador-1].score = 200;
-                jugadors[jugador-1].combi = "Doble Parella";
-                return;
-            // Parella
-            } else if (totalValors === 4) {
-                jugadors[jugador-1].score = 100;
-                jugadors[jugador-1].combi = "Parella";
-                return;
-            } 
-        }
+        repeticions = resultatValors[key]; // Valor de la clau 'key'
+        // Full
+        if ((totalValors === 2) && ((repeticions === 3) || (repeticions === 2))) {
+            jugadors[pos].score = 600 + calculaValorCombinacio(resultatValors);
+            jugadors[pos].combi = "Full";
+            return;
+        // Poker
+        } else if ((totalValors === 2) && ((repeticions === 4) || (repeticions === 1))) {
+            jugadors[pos].score = 700 + calculaValorCombinacio(resultatValors);
+            jugadors[pos].combi = "Pòquer";
+            return;
+        // Trio
+        } else if ((totalValors === 3) && (repeticions === 3)) {
+            jugadors[pos].score = 300 + calculaValorCombinacio(resultatValors);
+            jugadors[pos].combi = "Trio";
+            return;
+        // Doble parella
+        } else if ((totalValors === 3) && (repeticions === 2)) {
+            jugadors[pos].score = 200 + calculaValorCombinacio(resultatValors);
+            jugadors[pos].combi = "Doble Parella";
+            return;
+        // Parella
+        } else if (totalValors === 4) {
+            jugadors[pos].score = 100 + calculaValorCombinacio(resultatValors);
+            jugadors[pos].combi = "Parella";
+            return;
+        } 
     }
 
     // Ordena valors
     valorsEscala.sort(function(a, b){return a - b});
 
-    // Escala
+    // Comprova si hi ha algun tipus d'Escala
     let escala = true;
     for (let i=0; i<valorsEscala.length-1; i++) {
         if (valorsEscala[i] !== (valorsEscala[i+1]-1)) {
@@ -172,26 +172,50 @@ function comprovaCombinacions(jugador, ma) {
 
     // Escala color
     if ((totalPals === 1) && escala) {
-        console.log(jugador,"-> Escala color ;)");
+        jugadors[pos].score = 800 + sumaValors(valors);
+        jugadors[pos].combi = "Escala color ;)";
         return;
     // Color
     } else if (totalPals === 1) {
-        console.log(jugador,"-> Color");
+        jugadors[pos].score = 500 + sumaValors(valors);
+        jugadors[pos].combi = "Color";
         return;
     // Escala
     } else if (escala) {
-        console.log(jugador,"-> Escala");
+        jugadors[pos].score = 400 + sumaValors(valors);
+        jugadors[pos].combi = "Escala";
         return;
-    // La més alta
+    // Cap combinació
     } else {
-        console.log(jugador,"-> Res de res");
+        jugadors[pos].score = sumaValors(valors)
+        jugadors[pos].combi = "";
         return;
     }
 }
 
+// Calcula el valor de cada combinació
+function calculaValorCombinacio(resultatValors) {
+    let result = 0;
+    for (const [key, value] of Object.entries(resultatValors)) {
+        if (value > 1) {
+            result += comprovaValor(key) * value;
+        }
+    }
+    return result;
+}
+
+// Suma el valor de totes les cartes (per quan hi ha escala o cap combinació)
+function sumaValors(valors) {
+    let resultat = 0;
+    valors.forEach(function(x) {
+        resultat += comprovaValor(x);
+    })
+    return resultat;
+}
+
 function comprovaMans() {
     for (let i=0; i<jugadors.length; i++) {
-        comprovaCombinacions(jugadors[i].nom, jugadors[i].ma);
+        comprovaCombinacions(i);
     }
 }
 
@@ -201,10 +225,20 @@ function mostraResultats() {
     }
 }
 
+function mostraGuanyador() {
+    let resultat = Math.max.apply(Math, jugadors.map(function(o) { return o.score; }));
+
+    let guanyador = jugadors.filter(obj => {
+        return obj.score === resultat
+      })
+      console.log("\nEl guanyador és: Jugador",guanyador[0].nom)
+}
+
 generaBaralla();
 generaNumAleatori();
 barrejaBaralla();
 reparteixBaralla(numJugadors);
 comprovaMans();
 mostraResultats();
+mostraGuanyador();
 
