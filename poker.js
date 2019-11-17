@@ -1,6 +1,4 @@
-
-const numJugadors = 4;
-
+const numJugadors = 2;
 
 const pal = ['piques', 'cors', 'trevols', 'diamants'];
 const valor = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
@@ -11,16 +9,12 @@ const valor = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
 //const pal = ['piques'];
 //const valor = ['Q','K','A','J','9','8'];
 
-
-
 let baralla = [];
 let barrallaBarrejada = [];
 let jugadors = [];
-//let jugadorsMa = [];
-let puntuacions = []
 
 // Genera una baralla de poker amb 52 cartes
-function generaBaralla() {
+const generaBaralla = () => {
 
     console.clear();
 
@@ -32,18 +26,20 @@ function generaBaralla() {
 }
 
 // Genera un número aleatori dins d'un rang numèric
-function generaNumAleatori(totalMin, totalMax) {
+const generaNumAleatori = (totalMin, totalMax) => {
 
     return Math.floor(Math.random() * (totalMax - totalMin + 1)) + totalMin;
 }
 
 // Genera una nova baralla amb les cartes barrejades aleatòriament
-function barrejaBaralla() {
+const barrejaBaralla = () => {
 
     let totalMax = baralla.length;
     let currentMax = totalMax;
+    let indexAleatori = 0;
+
     for (let i=0; i<totalMax; i++) {
-        let indexAleatori = generaNumAleatori(0,currentMax-1);
+        indexAleatori = generaNumAleatori(0,currentMax-1);
         barrallaBarrejada.push(baralla[indexAleatori]);
         baralla.splice(indexAleatori,1);
         currentMax--;
@@ -51,7 +47,7 @@ function barrejaBaralla() {
 }
 
 // Genera els jugadors i reparteix 5 cartes a cadascú
-function reparteixBaralla(numJugadors) {
+const reparteixBaralla = (numJugadors) => {
 
     let ma = [];
     if (numJugadors <= 10) {
@@ -59,7 +55,7 @@ function reparteixBaralla(numJugadors) {
             for (let j=0; j<5; j++) {
                 ma.push(barrallaBarrejada.pop());
             }
-            jugadors.push({nom: i, ma: ma, score: 0, combi: '' });
+            jugadors.push({nom: i, ma: ma, score: 0, combi: '', desempat: [] });
             ma = [];
         }
     } else {
@@ -67,30 +63,39 @@ function reparteixBaralla(numJugadors) {
     }
 
     for (let j=0; j<jugadors.length; j++) {
-        console.log(jugadors[j])
+        console.log("Jugador",jugadors[j].nom)
+        console.log(jugadors[j].ma)
     }
     
-    
+
+    // Per provar l'empat 
+    /*
+   jugadors.push({nom: 1, ma: [{pal: 'diamants', valor: 'A'},{pal: 'diamants', valor: 'A'},{pal: 'diamants', valor: 'A'},{pal: 'diamants', valor: 'A'},{pal: 'ors', valor: '2'}], score: 0, combi: '', desempat: [] });
+   jugadors.push({nom: 1, ma: [{pal: 'diamants', valor: 'A'},{pal: 'diamants', valor: 'A'},{pal: 'diamants', valor: 'A'},{pal: 'diamants', valor: 'A'},{pal: 'ors', valor: '3'}], score: 0, combi: '', desempat: [] });
+   for (let j=0; j<jugadors.length; j++) {
+        console.log("Jugador",jugadors[j].nom)
+        console.log(jugadors[j].ma)
+    }
+    */
+
 }
 
 // Assigna valor a cada carta
-function comprovaValor(carta) {
-    switch (carta) {
-        case '2':   return 2;
-        case '3':   return 3;
-        case '4':   return 4;
-        case '5':   return 5;
-        case '6':   return 6;
-        case '7':   return 7;
-        case '8':   return 8;
-        case '9':   return 9;
-        case 'J':   return 10;
-        case 'Q':   return 11;
-        case 'K':   return 12;
-        case 'A':   return 13;
-        default:    return 0;
-    }
-}
+const valorCarta = (carta) => ({
+        '2': 2,
+        '3': 3,
+        '4': 4,
+        '5': 5,
+        '6': 6,
+        '7': 7,
+        '8': 8,
+        '9': 9,
+        'J': 10,
+        'Q': 11,
+        'K': 12,
+        'A': 13,
+})[carta] || 0;
+
 
 /*
     Escala Color: 5 cartes consecutives mateix pal -> 800 punts
@@ -103,15 +108,14 @@ function comprovaValor(carta) {
     Parella: 2 cartes mateix valor, 3 cartes valors diferents -> 100 punts
 */
 
-function comprovaCombinacions(pos) {
-    //jugadors[i].nom, jugadors[i].ma
+const comprovaCombinacions = (pos) => {
 
     // Passa propietats de valors i pals a arrays
     let valors = [], pals = [], valorsEscala = [];
     for (let i=0; i<jugadors[pos].ma.length; i++) {
         valors.push(jugadors[pos].ma[i].valor);
         pals.push(jugadors[pos].ma[i].pal);
-        valorsEscala.push(comprovaValor(jugadors[pos].ma[i].valor));
+        valorsEscala.push(valorCarta(jugadors[pos].ma[i].valor));
     }
 
     // Calcula número de repeticions per cada valor / pal
@@ -119,9 +123,11 @@ function comprovaCombinacions(pos) {
     let resultatValors = {}, resultatPals = {};
     valors.forEach(function(x) { resultatValors[x] = (resultatValors[x] || 0) + 1; });
     pals.forEach(function(x) { resultatPals[x] = (resultatPals[x] || 0) + 1; });
-    
-    console.log("resultatValors:",resultatValors)
-    console.log("resultatPals:",resultatPals)
+
+    console.log(resultatValors)
+    console.log(resultatPals)
+
+    jugadors[pos].desempat = calculaValorCombinacio(resultatValors)[1];
 
     // Count del número les propietats
     let totalValors = Object.keys(resultatValors).length;
@@ -133,27 +139,27 @@ function comprovaCombinacions(pos) {
         repeticions = resultatValors[key]; // Valor de la clau 'key'
         // Full
         if ((totalValors === 2) && ((repeticions === 3) || (repeticions === 2))) {
-            jugadors[pos].score = 600 + calculaValorCombinacio(resultatValors);
+            jugadors[pos].score = 600 + calculaValorCombinacio(resultatValors)[0];
             jugadors[pos].combi = "Full";
             return;
         // Poker
         } else if ((totalValors === 2) && ((repeticions === 4) || (repeticions === 1))) {
-            jugadors[pos].score = 700 + calculaValorCombinacio(resultatValors);
+            jugadors[pos].score = 700 + calculaValorCombinacio(resultatValors)[0];
             jugadors[pos].combi = "Pòquer";
             return;
         // Trio
         } else if ((totalValors === 3) && (repeticions === 3)) {
-            jugadors[pos].score = 300 + calculaValorCombinacio(resultatValors);
+            jugadors[pos].score = 300 + calculaValorCombinacio(resultatValors)[0];
             jugadors[pos].combi = "Trio";
             return;
         // Doble parella
         } else if ((totalValors === 3) && (repeticions === 2)) {
-            jugadors[pos].score = 200 + calculaValorCombinacio(resultatValors);
+            jugadors[pos].score = 200 + calculaValorCombinacio(resultatValors)[0];
             jugadors[pos].combi = "Doble Parella";
             return;
         // Parella
         } else if (totalValors === 4) {
-            jugadors[pos].score = 100 + calculaValorCombinacio(resultatValors);
+            jugadors[pos].score = 100 + calculaValorCombinacio(resultatValors)[0];
             jugadors[pos].combi = "Parella";
             return;
         } 
@@ -193,52 +199,104 @@ function comprovaCombinacions(pos) {
     }
 }
 
-// Calcula el valor de cada combinació
-function calculaValorCombinacio(resultatValors) {
-    let result = 0;
+const calculaValorCombinacio = (resultatValors) => {
+
+    let sumaCombinacions = 0;
+    let sumaDesempat = [];
     for (const [key, value] of Object.entries(resultatValors)) {
         if (value > 1) {
-            result += comprovaValor(key) * value;
+            sumaCombinacions += valorCarta(key) * value;
+        } else {
+            sumaDesempat.push(valorCarta(key));
         }
     }
-    return result;
+    return [sumaCombinacions,sumaDesempat];
 }
 
 // Suma el valor de totes les cartes (per quan hi ha escala o cap combinació)
-function sumaValors(valors) {
+const sumaValors = (valors) => {
+
     let resultat = 0;
     valors.forEach(function(x) {
-        resultat += comprovaValor(x);
+        resultat += valorCarta(x);
     })
     return resultat;
 }
 
-function comprovaMans() {
+const comprovaMans = () => {
+
     for (let i=0; i<jugadors.length; i++) {
         comprovaCombinacions(i);
     }
 }
 
-function mostraResultats() {
+const mostraResultats = () => {
+
     for (let i=0; i<jugadors.length; i++) {
         console.log("Jugador",(i+1),"-> Puntuació: ",jugadors[i].score,jugadors[i].combi);
     }
 }
 
-function mostraGuanyador() {
-    let resultat = Math.max.apply(Math, jugadors.map(function(o) { return o.score; }));
+const mostraGuanyador = () => {
 
+    // Obté la puntuació més alta
+    let resultat = Math.max.apply(Math, jugadors.map(function(o) { return o.score; }));
+    
+    // Busca empats de puntuació
+    let guanyadorsRepetits = {}
+    jugadors.forEach(function(obj) {
+        var key = obj.score
+        guanyadorsRepetits[key] = (guanyadorsRepetits[key] || 0) + 1
+    })
+    console.log("repes:",guanyadorsRepetits);  // ex: repes: { '248': 1, '256': 3 }
+
+    // Buscar si hi ha més de 2 persones amb la màxima puntuació
+    for (const [key, value] of Object.entries(guanyadorsRepetits)) {
+        if ((value > 1) && (Number(key) === resultat)) {
+            console.log("\nEmpat!")
+            buscaDesempat(0, 0, [], resultat);
+            return;
+        }
+    }
+
+
+    // Tria el jugador amb el valor més alt
     let guanyador = jugadors.filter(obj => {
         return obj.score === resultat
       })
-      console.log("\nEl guanyador és: Jugador",guanyador[0].nom)
+
+    console.log(jugadors)
+    console.log("\nEl guanyador és: Jugador",guanyador[0].nom)
 }
 
+const buscaDesempat = (posicioDesempat, darrerNumMaxim, candidats, resultat) => {
+
+        // TODO: per tots aquell jugadors amb màxima puntuació, mirar el seu array de desempat ordenat,
+    // guanyarà qui tingui la segona,tercera,... carta més alta.
+
+    let pos = 0;
+    jugadors.forEach(function(obj) {
+        let score = obj.score;
+        let desempat = obj.desempat;
+        console.log("Number(score):",Number(score),"resultat:",resultat,"desempat[posicioDesempat]",desempat[posicioDesempat],"darrerNumMaxim",darrerNumMaxim)
+        if ((Number(score) === resultat) && (desempat[posicioDesempat] >= darrerNumMaxim)) {
+            darrerNumMaxim = desempat[posicioDesempat];
+            candidats.push(pos);
+        }
+        pos++;
+    })
+
+    if (candidats.length === 1) {
+        console.log("\nEl guanyador és: Jugador",jugadors[candidats[0]].nom);
+    }
+
+}
+
+
+// Execució principal
 generaBaralla();
-generaNumAleatori();
 barrejaBaralla();
 reparteixBaralla(numJugadors);
 comprovaMans();
 mostraResultats();
 mostraGuanyador();
-
